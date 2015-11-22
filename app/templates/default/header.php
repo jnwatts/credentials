@@ -32,7 +32,6 @@ $hooks = Hooks::get();
 	//hook for plugging in css
 	$hooks->run('css');
 	?>
-
 </head>
 <body>
 <?php
@@ -41,3 +40,8 @@ $hooks->run('afterBody');
 ?>
 
 <div class="container">
+
+<div class="page-header">
+<h1>Credentials</h1>
+</div>
+

@@ -1,0 +1,7 @@
+- User can't add own keys (???)
+- audit: show json data on delete user/key
+- audit: fix log msg for set-admin
+o configure,audit: format all names as login(uid)
+o configure: Add export/import of config settings
+- configure: Add initialization of databases
+o models/users: Move currentuser & associated ldap/audit logic to controllers/users
