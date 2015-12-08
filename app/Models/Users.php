@@ -31,7 +31,7 @@ class Users extends Model
             u.fullname AS fullname,
             u.admin,
             COUNT(k.id) AS numKeys
-                FROM '.PREFIX.'users AS u LEFT JOIN '.PREFIX.'keys AS k ON k.user_id = u.id';
+                FROM `'.PREFIX.'users` AS u LEFT JOIN `'.PREFIX.'keys` AS k ON k.user_id = u.id';
         if (strlen($where) > 0) {
             $sql .= ' WHERE ' . $where;
         }
