@@ -94,7 +94,7 @@ class Users extends Model
         $admin_dn = $config->get('ldap_admin_dn');
         $bind_dn = $config->get('ldap_bind_dn');
         $bind_pw = $config->get('ldap_bind_pw');
-        $base_pw = $config->get('ldap_base_dn');
+        $base_dn = $config->get('ldap_base_dn');
         $ldap_url = $config->get('ldap_url');
 
         preg_match(
