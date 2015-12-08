@@ -6,9 +6,14 @@ use Helpers\Audit;
 
 class Users extends Model
 {
+    private $usersTable;
+    private $keysTable;
+
     function __construct()
     {
         parent::__construct();
+        $this->usersTable = '`'.PREFIX.'users`';
+        $this->keysTable = '`'.PREFIX.'keys`';
     }
 
     function currentUser()
@@ -31,7 +36,7 @@ class Users extends Model
             u.fullname AS fullname,
             u.admin,
             COUNT(k.id) AS numKeys
-                FROM `'.PREFIX.'users` AS u LEFT JOIN `'.PREFIX.'keys` AS k ON k.user_id = u.id';
+                FROM '.$this->usersTable.' AS u LEFT JOIN '.$this->keysTable.' AS k ON k.user_id = u.id';
         if (strlen($where) > 0) {
             $sql .= ' WHERE ' . $where;
         }
@@ -80,7 +85,7 @@ class Users extends Model
 
     function getById($id)
     {
-        $result = $this->db->select('SELECT * FROM '.PREFIX.'users WHERE id='.$id);
+        $result = $this->db->select('SELECT * FROM '.$this->usersTable.' WHERE id='.$id);
         if (count($result) >= 1) {
             $result = new \Models\User($result[0]);
         } else {
@@ -138,25 +143,21 @@ class Users extends Model
     {
         $result = $this->getUserInfoFromLdap($login);
         if ($result != NULL) {
-            $this->db->insert(PREFIX.'users', $result);
+            $this->db->insert($this->usersTable, $result);
             $result = $this->getById($this->db->lastInsertId('id'));
         }
-            /*
-            $this->db->insert(PREFIX.'users', array('login' => $login));
-            $result = $this->getById($this->db->lastInsertId('id'));
-            */
         
         return $result;
     }
 
     function deleteById($id)
     {
-        $this->db->delete(PREFIX.'users',  array('id' => $id));
+        $this->db->delete($this->usersTable,  array('id' => $id));
     }
 
     function deleteAll()
     {
-        $this->db->query('DELETE FROM '.PREFIX.'users');
+        $this->db->query('DELETE FROM '.$this->usersTable.'');
     }
 
     function update($id, $data)
@@ -164,14 +165,14 @@ class Users extends Model
         if (array_key_exists('id', $data)) {
             unset($data['id']);
         }
-        $this->db->update(PREFIX.'users', $data, array('id' => $id));
+        $this->db->update($this->usersTable, $data, array('id' => $id));
     }
 
     function setAdmin($id, $val)
     {
         $user = $this->getById($id);
         if ($user != NULL) {
-            $this->db->update(PREFIX.'users', array('admin' => $val), array('id' => $id));
+            $this->db->update($this->usersTable, array('admin' => $val), array('id' => $id));
         }
     }
 }
