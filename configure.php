@@ -62,6 +62,8 @@ function usage() {
 }
 
 function show_var($var, $val) {
+    if ($val == NULL)
+        $val = "NULL";
     dbg($var . ' = ' . $val);
 }
 
@@ -121,8 +123,8 @@ if ($action == "set") {
     if ($var == NULL) {
         $result = $config->getAll();
         if ($result != NULL) {
-            foreach ($result as $row) {
-                show_var($row->name, $row->value);
+            foreach ($result as $name => $value) {
+                show_var($name, $value);
             }
         }
     } else {

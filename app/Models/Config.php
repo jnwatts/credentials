@@ -36,10 +36,15 @@ class Config extends Model
     public function getAll() {
         $sql = 'SELECT `name`, `value` from `'.PREFIX.'config`';
         $result = $this->db->select($sql);
-        if (count($result) <= 0) {
-            $result = NULL;
+        $results = array_fill_keys($this->config_names, NULL);
+        if ($result != NULL) {
+            if (count($result) > 0) {
+                foreach ($result as $row) {
+                    $results[$row->name] = $row->value;
+                }
+            }
         }
-        return $result;
+        return $results;
     }
 
     public function set($name, $value) {
