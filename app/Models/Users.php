@@ -147,15 +147,15 @@ class Users extends Model
 
     function createFromLogin($login)
     {
-/*
         $result = $this->getUserInfoFromLdap($login);
         if ($result != NULL) {
             $this->db->insert(PREFIX.'users', $result);
             $result = $this->getById($this->db->lastInsertId('id'));
         }
-    */
+            /*
             $this->db->insert(PREFIX.'users', array('login' => $login));
             $result = $this->getById($this->db->lastInsertId('id'));
+            */
         
         return $result;
     }
