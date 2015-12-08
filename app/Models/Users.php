@@ -91,23 +91,12 @@ class Users extends Model
 
     function getUserInfoFromLdap($login) {
         $config = new Config();
-        $ldap_conf_file = $config->get('ldap_conf_file');
         $admin_dn = $config->get('ldap_admin_dn');
         $bind_dn = $config->get('ldap_bind_dn');
         $bind_pw = $config->get('ldap_bind_pw');
         $base_pw = $config->get('ldap_base_dn');
         $ldap_url = $config->get('ldap_url');
 
-/*
-        $lines = file($ldap_conf_file);
-        foreach ($lines as $line) {
-            preg_match('/^([^\s]+)\s+"?([^"]*)"?$/', $line, $m);
-            $ldap_conf[strtoupper($m[1])] = trim($m[2]);
-        }
-        $ldap_url = $ldap_conf['AUTHLDAPURL'];
-        $bind_dn = $ldap_conf['AUTHLDAPBINDDN'];
-        $bind_pw = $ldap_conf['AUTHLDAPBINDPASSWORD'];
-        */
         preg_match(
                 '/(?<scheme>[a-z]+?):\/\/' // scheme
                 .'(?<host>[a-z0-9\-\._]+)' // host

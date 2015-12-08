@@ -13,7 +13,6 @@ class Config extends Model
     private $config_names = array(
         'key_export_path',
         'key_export_cmd',
-        'ldap_conf_file',
         'ldap_admin_dn',
         'ldap_bind_dn',
         'ldap_bind_pw',
