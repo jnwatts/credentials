@@ -25,17 +25,17 @@ class Users extends Model
     private function select($where = "")
     {
         $sql = 'SELECT
-            u.id AS id,
-            u.login AS login,
-            u.email AS email,
-            u.fullname AS fullname,
-            u.admin,
+            id AS id,
+            login AS login,
+            email AS email,
+            fullname AS fullname,
+            admin,
             COUNT(k.id) AS numKeys
-                FROM '.PREFIX.'users AS u LEFT JOIN '.PREFIX.'keys AS k ON k.user_id = u.id';
+                FROM '.PREFIX.'users LEFT JOIN '.PREFIX.'keys AS k ON k.user_id = id';
         if (strlen($where) > 0) {
             $sql .= ' WHERE ' . $where;
         }
-        $sql .= ' GROUP BY u.id ORDER BY u.login';
+        $sql .= ' GROUP BY id ORDER BY login';
         return $this->db->select($sql);
     }
 
