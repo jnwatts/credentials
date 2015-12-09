@@ -1,5 +1,9 @@
 #!/usr/bin/php
 <?php
+
+if (!posix_access(__FILE__, POSIX_X_OK))
+	die("Access denied\n");
+
 chdir(realpath(dirname(__FILE__)));
 
 if (posix_isatty(STDIN)) {
