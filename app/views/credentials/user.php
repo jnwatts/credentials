@@ -17,6 +17,7 @@ $user = $data['user'];
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#user-info">
         <h3 class="panel-title">
+            <span id="user-info-collapse-icon" class="glyphicon glyphicon-collapse-up"></span>
             User info
         </h3>
     </div>
@@ -33,6 +34,7 @@ $user = $data['user'];
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#add-key-panel">
         <h3 class="panel-title">
+            <span id="add-key-collapse-icon" class="glyphicon glyphicon-collapse-down"></span>
             Add key
         </h3>
     </div>
@@ -56,6 +58,7 @@ $user = $data['user'];
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#ssh-keys">
         <h3 class="panel-title">
+            <span id="ssh-keys-collapse-icon" class="glyphicon glyphicon-collapse-up"></span>
             SSH keys
         </h3>
     </div>

@@ -105,4 +105,8 @@ $('input[type=file]').change(function () {
     }
 });
 
+enable_collapse_icon('#user-info', '#user-info-collapse-icon');
+enable_collapse_icon('#add-key-panel', '#add-key-collapse-icon');
+enable_collapse_icon('#ssh-keys', '#ssh-keys-collapse-icon');
+
 </script>

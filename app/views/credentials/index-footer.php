@@ -105,4 +105,6 @@ $('input[type=file]#add-many-keys').change(function () {
         });
     });
 });
+
+enable_collapse_icon('#add-user-panel', '#add-user-collapse-icon');
 </script>

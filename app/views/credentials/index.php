@@ -16,6 +16,7 @@ $user = $data['current_user'];
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#add-user-panel">
         <h3 class="panel-title">
+        <span id="add-user-collapse-icon" class="glyphicon glyphicon-collapse-down"></span>
         Add user
         </h3>
     </div>

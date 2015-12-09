@@ -19,7 +19,8 @@ $hooks = Hooks::get();
 Assets::js(array(
     '//code.jquery.com/jquery-2.1.4.min.js',
 	'//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js',
-    Url::templatePath() . 'js/error-helper.js'
+    Url::templatePath() . 'js/error-helper.js',
+    Url::templatePath() . 'js/collapse-icon.js'
 ));
 
 //hook for plugging in javascript
