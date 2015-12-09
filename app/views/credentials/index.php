@@ -39,13 +39,30 @@ $user = $data['current_user'];
             Users
         </h3>
     </div>
-<div class="list-group">
+    <table class="table table-striped table-condensed table-hover">
+        <thead>
+        <tr>
+            <th>Login</th>
+            <th>Fullname</th>
+            <th>Email</th>
+            <th>Flags</th>
+            <th>Keys</th>
+        </tr>
+        </thead>
+        <tbody>
 <?php foreach ($data['users'] as $user) { ?>
-<a href="<?=DIR?>users/<?=$user->id?>" class="list-group-item">
-    <span class="badge"><?=$user->numKeys?></span>
-    <?=$user->login?><?=($user->isAdmin() ? ' <span class="label label-info">admin</span>' : '')?>
-</a>
+        <tr data-href="<?=DIR?>users/<?=$user->id?>">
+            <td><a href="<?=DIR?>users/<?=$user->id?>"><?=$user->login?></a></td>
+            <td><?=$user->fullname?></td>
+            <td><?=$user->email?></td>
+            <td>
+                <?=(($user->ldap == 1) ? ' <span class="label label-info">ldap</span>' : '')?>
+                <?=(($user->admin == 1) ? ' <span class="label label-info">admin</span>' : '')?>
+            </td>
+            <td><span class="badge"><?=$user->numKeys?></span></td>
+        </tr>
 <?php } ?>
-</div>
+        </tbody>
+    </table>
 </div>
 

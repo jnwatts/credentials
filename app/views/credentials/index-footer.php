@@ -3,6 +3,14 @@ use Helpers\Url;
 ?>
 
 <script>
+$(function(){
+    $('.table tr[data-href]').each(function(){
+        $(this).css('cursor','pointer').click( function(){
+            document.location = $(this).attr('data-href');
+        });
+    });
+});
+
 $('#add-single-user').click(function() {
     var form = $('form#add-user');
     $.ajax({
