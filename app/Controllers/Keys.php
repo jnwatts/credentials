@@ -7,6 +7,7 @@ use Core\Model;
 use Core\Error;
 use Helpers\Request;
 use Helpers\Audit;
+use Helpers\User;
 
 class Keys extends Controller
 {
@@ -20,7 +21,7 @@ class Keys extends Controller
 
     public function delete($id)
     {
-        $current_user = $this->users->currentUser();
+        $current_user = User::current();
         $key = $this->keys->getById($id);
         if (!$key) {
             http_response_code(404);
@@ -29,7 +30,8 @@ class Keys extends Controller
             http_response_code(403);
             echo 'Not allowed';
         } else {
-            Audit::log($current_user, 'delete key '.$key->id, $key);
+            $user = User::instance()->findId($key->user_id);
+            Audit::log($current_user, 'delete key '.$key->id.' for '.$user, $key);
             $this->keys->deleteById($id);
         }
     }
@@ -53,8 +55,8 @@ class Keys extends Controller
             return;
         }
 
-        $current_user = $this->users->currentUser();
-        $user = $this->users->getById($data->user_id);
+        $current_user = User::current();
+        $user = User::instance()->findId($data->user_id);
         if ($current_user->isAdmin()) {
             if ($user == NULL) {
                 http_response_code(409);
@@ -77,14 +79,14 @@ class Keys extends Controller
         }
 
         $key = $this->keys->create($user, $data->host, $data->hash);
-        Audit::log($current_user, 'create key '.$key->id, $key);
+        Audit::log($current_user, 'create key '.$key->id.' for '.$user, $key);
         http_response_code(200);
         echo json_encode($key, JSON_PRETTY_PRINT);
     }
 
     public function createMany($data)
     {
-        $current_user = $this->users->currentUser();
+        $current_user = User::current();
         if (!$current_user->isAdmin()) {
             http_response_code(403);
             echo 'Not allowed';
@@ -107,11 +109,7 @@ class Keys extends Controller
                 $result['status'] = 409;
                 $result['message'] = 'Hash is empty';
             } else {
-                $user = $this->users->getByLogin($data->user);
-                if ($user == NULL) {
-                    $user = $this->users->createFromLogin($data->user);
-                    Audit::log($current_user, 'create user '.$user->id, $user);
-                }
+                $user = User::instance()->get($data->user);
                 $result['user_id'] = $user->id;
 
                 $key = $this->keys->getByUserHost($user, $data->host);
@@ -121,7 +119,7 @@ class Keys extends Controller
                     $result['key_id'] = $key->id;
                 } else {
                     $key = $this->keys->create($user, $data->host, $data->hash);
-                    Audit::log($current_user, 'create key '.$key->id, $key);
+                    Audit::log($current_user, 'create key '.$key->id.' for '.$user, $key);
                     $result['key_id'] = $key->id;
                     $result['status'] = 200;
                     $result['message'] = 'Ok';

@@ -12,12 +12,9 @@ use Core\Router;
 use Helpers\Hooks;
 
 /** Define routes. */
-Router::any('', 'Controllers\Credentials@index');
-
-Router::any('test', 'Controllers\Credentials@test');
-
+Router::any('', 'Controllers\Users@index');
 Router::post('users', 'Controllers\Users@create');
-Router::get('users', 'Controllers\Credentials@index');
+Router::get('users', 'Controllers\Users@index');
 Router::post('users/(:num)', 'Controllers\Users@update');
 Router::get('users/(:num)', 'Controllers\Users@index');
 Router::delete('users/(:num)', 'Controllers\Users@delete');

@@ -20,11 +20,7 @@ class Audit
 
     public static function log($user, $what, $extra = NULL)
     {
-        if (gettype($user) == 'object' && is_a($user, 'Models\User')) {
-            $who = $user->login.'('.$user->id.')';
-        } else {
-            $who = $user;
-        }
+        $who = (string)$user;
         self::get()->audit->log($who, $what, $extra);
     }
 }

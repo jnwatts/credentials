@@ -45,7 +45,9 @@ $core_config = new \Core\Config();
 
 $config = new \Models\Config();
 $users = new \Models\Users();
+$keys = new \Models\Keys();
 $audit = new \Models\Audit();
+use Helpers\User;
 
 ob_end_flush();
 
@@ -53,35 +55,26 @@ function usage() {
     dbg('Usage: ' . $argv[0] . ' <action> [<args...>]');
     dbg(' get [<name>]          Get config <name> (or all if <name> empty)');
     dbg(' set <name> <value>    Set config <name> to <value>');
+	dbg(' import <json>			Import config from json string');
     dbg(' admin [<login>]       Make <login> an admin (or list admins if <login> empty)');
     dbg(' user [<login>]        Show user <login> (or list all if <login> empty)');
+    dbg(' keys <login>          Show keys of user <login>');
     dbg(' delete_all_users_keys Delete ALL users and keys (DANGER!!)');
     dbg(' audit [<since>]       Show audit log (or limit to <since>: [<days>D][<hours>H][<minutes>M])');
     dbg(' init_database         Initial database tables (DANGER!! This includes audit and config!!)');
     exit(1);
 }
 
-function show_var($var, $val) {
-    if ($val == NULL)
-        $val = "NULL";
-    dbg($var . ' = ' . $val);
+function show_vars($vars) {
+	dbg(json_encode($vars, JSON_PRETTY_PRINT));
 }
 
 function show_user($user) {
-    $info = "";
-    if ($user->fullname != "") {
-        $info .= $user->fullname;
-    } else {
-        $info .= $user->login;
-    }
-    if ($user->email != "") {
-        $info .= ' [email:' . $user->email . ']';
-    }
-    if ($user->isAdmin()) {
-        $info .= ' [admin]';
-    }
-    $info .= ' [numKeys:' . $user->numKeys . ']';
-    dbg($info);
+	dbg(json_encode($user));
+}
+
+function show_key($key) {
+	dbg(json_encode($key));
 }
 
 function show_audit($log) {
@@ -119,13 +112,21 @@ if ($action == "set") {
     }
     $config->set($var, $val);
     Audit::log('console', 'set config', array('name' => $var, 'value' => $val));
+} else if ($action == "import") {
+	if ($var == NULL) {
+		dbg("Missing data");
+		usage();
+	}
+	$data = json_decode($var, true);
+	foreach ($data as $name => $value) {
+		if ($value != NULL)
+			$config->set($name, $value);
+	}
 } else if ($action == "get") {
     if ($var == NULL) {
         $result = $config->getAll();
         if ($result != NULL) {
-            foreach ($result as $name => $value) {
-                show_var($name, $value);
-            }
+			show_vars($result);
         }
     } else {
         $result = $config->get($var);
@@ -149,12 +150,12 @@ if ($action == "set") {
     }
 } else if ($action == "user") {
     if ($var == NULL) {
-        $result = $users->getAll();
+        $result = User::instance()->get();
         foreach ($result as $user) {
             show_user($user);
         }
     } else {
-        $user = $users->getByLogin($var);
+		$user = User::instance()->find($var);
         if ($user != NULL) {
             show_user($user);
         } else {
@@ -162,6 +163,20 @@ if ($action == "set") {
             exit(1);
         }
     }
+} else if ($action == "keys") {
+	if ($var == NULL) {
+		dbg("Missing login");
+		usage();
+	}
+	$user = $users->getByLogin($var);
+	if ($user == NULL) {
+		dbg('Login not found');
+		exit(1);
+	}
+	$keys = $keys->getAllByuser($user);
+	foreach ($keys as $key) {
+		show_key($key);
+	}
 } else if ($action == "delete_all_users_keys") {
     $users->deleteAll();
     Audit::log('console', 'delete all users');
@@ -220,7 +235,8 @@ CREATE TABLE `%PREFIX%users` (
   `login` varchar(32) NOT NULL,
   `email` varchar(128) DEFAULT NULL,
   `fullname` varchar(128) DEFAULT NULL,
-  `admin` int(11) NOT NULL DEFAULT '0'
+  `admin` int(11) NOT NULL DEFAULT '0',
+  `ldap` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

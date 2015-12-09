@@ -16,17 +16,6 @@ class Users extends Model
         $this->keysTable = '`'.PREFIX.'keys`';
     }
 
-    function currentUser()
-    {
-        //TODO: This should be in the controller... then can decouple Models\Config and Models\User (and LDAP and Audit too)
-        $user = $this->getByLogin($_SERVER['PHP_AUTH_USER']);
-        if ($user == NULL) {
-            $user = $this->createFromLogin($_SERVER['PHP_AUTH_USER']);
-            Audit::log($user, 'self initialization', $user);
-        }
-        return $user;
-    }
-
     private function select($where = "")
     {
         $sql = 'SELECT
@@ -35,6 +24,7 @@ class Users extends Model
             u.email AS email,
             u.fullname AS fullname,
             u.admin,
+            u.ldap,
             COUNT(k.id) AS numKeys
                 FROM '.$this->usersTable.' AS u LEFT JOIN '.$this->keysTable.' AS k ON k.user_id = u.id';
         if (strlen($where) > 0) {
@@ -74,7 +64,7 @@ class Users extends Model
 
     function getByLogin($login)
     {
-        $result = $this->select('login="'.$login.'"');
+        $result = $this->select('login='.$this->db->quote($login));
         if (count($result) >= 1) {
             $result = new \Models\User($result[0]);
         } else {
@@ -85,68 +75,12 @@ class Users extends Model
 
     function getById($id)
     {
-        $result = $this->db->select('SELECT * FROM '.$this->usersTable.' WHERE id='.$id);
+        $result = $this->db->select('SELECT * FROM '.$this->usersTable.' WHERE id='.$this->db->quote($id, \PDO::PARAM_INT));
         if (count($result) >= 1) {
             $result = new \Models\User($result[0]);
         } else {
             $result = NULL;
         }
-        return $result;
-    }
-
-    function getUserInfoFromLdap($login) {
-        $config = new Config();
-        $admin_dn = $config->get('ldap_admin_dn');
-        $bind_dn = $config->get('ldap_bind_dn');
-        $bind_pw = $config->get('ldap_bind_pw');
-        $base_dn = $config->get('ldap_base_dn');
-        $ldap_url = $config->get('ldap_url');
-
-        preg_match(
-                '/(?<scheme>[a-z]+?):\/\/' // scheme
-                .'(?<host>[a-z0-9\-\._]+)' // host
-                .'(?::(?<port>[0-9]+))?' // port
-                .'\/?(?<dn>[a-z0-9,=]*)' // dn
-                .'(?:\?|$)?/si',
-                $ldap_url, $m);
-        $ldap_host = $m['scheme'].'://'.$m['host'];
-        if (isset($m['port']) && $m['port'] != NULL) {
-            $ldap_host .= ':'.$m['port'];
-        }
-
-        $h = ldap_connect($ldap_host); //or die('Could not connect to LDAP');
-        if (!$h)
-            return NULL;
-        $b = ldap_bind($h, $bind_dn, $bind_pw); // or die('Failed to bind');
-        if (!$b) {
-            ldap_close($h);
-            return NULL;
-        }
-
-        $results = ldap_search($h, $base_dn, '(samaccountname='.$login.')', array('memberof', 'mail', 'displayname'));
-        $entries = ldap_get_entries($h, $results);
-
-        if ($entries['count'] == 0) {
-            return NULL; //die('No entries');
-        }
-
-        $result['login'] = $login;
-        $result['fullname'] = $entries[0]['displayname'][0];
-        $result['email'] = $entries[0]['mail'][0];
-        $result['admin'] = (in_array($admin_dn, $entries[0]['memberof']) ? 1 : 0);
-
-        ldap_close($h);
-        return $result;
-    }
-
-    function createFromLogin($login)
-    {
-        $result = $this->getUserInfoFromLdap($login);
-        if ($result != NULL) {
-            $this->db->insert($this->usersTable, $result);
-            $result = $this->getById($this->db->lastInsertId('id'));
-        }
-        
         return $result;
     }
 
@@ -166,6 +100,12 @@ class Users extends Model
             unset($data['id']);
         }
         $this->db->update($this->usersTable, $data, array('id' => $id));
+    }
+
+    function create($data)
+    {
+        $this->db->insert($this->usersTable, $data);
+        return $this->getById($this->db->lastInsertId('id'));
     }
 
     function setAdmin($id, $val)

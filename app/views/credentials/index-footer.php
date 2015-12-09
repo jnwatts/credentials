@@ -97,7 +97,8 @@ $('input[type=file]#add-many-keys').change(function () {
                     successes++;
                 }
             }
-            showSuccess('Added ' + successes + ' keys');
+            if (successes > 0)
+                showSuccess('Added ' + successes + ' keys');
         }).fail(function(data) {
             console.log(data);
             showError(data.responseText);

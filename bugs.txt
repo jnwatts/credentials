@@ -5,3 +5,6 @@ o configure,audit: format all names as login(uid)
 o configure: Add export/import of config settings
 - configure: Add initialization of databases
 o models/users: Move currentuser & associated ldap/audit logic to controllers/users
+o users: Allow admin to modify non-ldap users
+o users: Mark imported users vs local only? ldap=1?
+o models: Switch to prepared and bound selects

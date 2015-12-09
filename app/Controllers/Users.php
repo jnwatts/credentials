@@ -8,6 +8,7 @@ use Core\Error;
 use Helpers\Hooks;
 use Helpers\Audit;
 use Helpers\Request;
+use Helpers\User;
 
 class Users extends Controller
 {
@@ -21,7 +22,7 @@ class Users extends Controller
 
     public function delete($id)
     {
-        $current_user = $this->users->currentUser();
+        $current_user = User::current();
         if (!$current_user->isAdmin()) {
             http_response_code(403);
             echo "Not allowed";
@@ -34,20 +35,20 @@ class Users extends Controller
             return;
         }
 
-        $user = $this->users->getById($id);
+        $user = User::instance()->findId($id);
         if ($user == NULL) {
             http_response_code(404);
             echo "User not found";
             return;
         }
 
-        Audit::log($current_user, 'delete user '.$id, $user);
+        Audit::log($current_user, 'delete user '.$user, $user);
         $this->users->deleteById($id);
     }
 
     public function create()
     {
-        $current_user = $this->users->currentUser();
+        $current_user = User::current();
         if (!$current_user->isAdmin()) {
             http_response_code(403);
             echo "Not allowed";
@@ -60,28 +61,15 @@ class Users extends Controller
         }
         $data = json_decode(file_get_contents('php://input'));
 
-        if (!preg_match('/^[a-zA-Z0-9\.\_\-]+$/', $data->login)) {
-            http_response_code(409);
-            echo "Invalid username";
-            return;
-        }
+        $user = User::instance()->create($data->login, get_object_vars($data));
 
-        if ($this->users->getByLogin($data->login) != NULL) {
-            http_response_code(409);
-            echo "User already exists";
-            return;
-        }
-
-        $user = $this->users->createFromLogin($data->login);
-        $this->users->update($user->id, get_object_vars($data));
-        Audit::log($current_user, 'create user '.$user->id, $user);
-
-        echo json_encode($user, JSON_PRETTY_PRINT);
+        if ($user != NULL)
+            echo json_encode($user, JSON_PRETTY_PRINT);
     }
 
     public function update($id)
     {
-        $current_user = $this->users->currentUser();
+        $current_user = User::current();
         if ($current_user->id != $id && !$current_user->isAdmin()) {
             http_response_code(403);
             echo "Not allowed";
@@ -112,35 +100,52 @@ class Users extends Controller
 
         if (count($update_data) > 0) {
             $this->users->update($user->id, $update_data);
-            Audit::log($current_user, 'update user '.$user->id, $update_data);
+            Audit::log($current_user, 'update user '.$user, $update_data);
         }
     }
 
-    public function index($id)
+    public function index($id = NULL)
     {
-        $current_user = $this->users->currentUser();
-        $user = $this->users->getById($id);
+        $current_user = User::current();
+        if ($id == NULL) {
+            if ($current_user->isAdmin()) {
+                // User is admin, show index of users
+                $data['title'] = 'User overview';
+                $data['current_user'] = $current_user;
+                $data['users'] = $this->users->getAll();
+                $data['footer-logic'] = 'credentials/index-footer';
 
-        if ($user == NULL) {
-            http_response_code(404);
-            echo "Not found";
-            return;
+                View::renderTemplate('header', $data);
+                View::render('credentials/index', $data);
+                View::renderTemplate('footer', $data);
+            } else {
+                // User is not admin, redirect to their page
+                $this->index($current_user->id);
+            }
+        } else {
+            $user = $this->users->getById($id);
+
+            if ($user == NULL) {
+                http_response_code(404);
+                echo "Not found";
+                return;
+            }
+
+            if ($current_user->id != $user->id && !$current_user->isAdmin()) {
+                http_response_code(403);
+                echo "Not allowed";
+                return;
+            }
+
+            $data['title'] = 'User ' . $user->login;
+            $data['current_user'] = $current_user;
+            $data['user'] = $user;
+            $data['keys'] = $this->keys->getAllByUser($user);
+            $data['footer-logic'] = 'credentials/user-footer';
+
+            View::renderTemplate('header', $data);
+            View::render('credentials/user', $data);
+            View::renderTemplate('footer', $data);
         }
-
-        if ($current_user->id != $user->id && !$current_user->isAdmin()) {
-            http_response_code(403);
-            echo "Not allowed";
-            return;
-        }
-
-        $data['title'] = 'User ' . $user->login;
-        $data['current_user'] = $current_user;
-        $data['user'] = $user;
-        $data['keys'] = $this->keys->getAllByUser($user);
-        $data['footer-logic'] = 'credentials/user-footer';
-
-        View::renderTemplate('header', $data);
-        View::render('credentials/user', $data);
-        View::renderTemplate('footer', $data);
     }
 }

@@ -15,5 +15,10 @@ class User
     {
         return ($this->admin == 1);
     }
+
+    public function __toString()
+    {
+        return $this->login . '(' . $this->id . ')';
+    }
 }
 
