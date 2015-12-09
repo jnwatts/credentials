@@ -34,6 +34,8 @@ unset($smvc);
 
 require SMVC.'vendor/autoload.php';
 
+use \Helpers\Audit;
+
 function dbg($msg) {
     if (DEBUG) {
         echo $msg."\n";
@@ -100,9 +102,11 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
         foreach ($fs_hosts as $host) {
             $filename = $login . '@' . $host . '.pub';
             $abs_filename = key_abs_path($filename);
-            dbg(' REMOVED ' . $filename);
+            $log = ' REMOVED ' . $filename;
+            dbg($log);
             $num_changed = $num_changed + 1;
             if (!$dry_run) {
+                Audit::log('exportkeys', $log);
                 unlink($abs_filename);
             }
         }
@@ -116,9 +120,11 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
         foreach ($missing_hosts as $host) {
             $filename = $user->login . '@' . $host . '.pub';
             $abs_filename = key_abs_path($filename);
-            dbg(' REMOVED ' . $filename);
+            $log = ' REMOVED ' . $filename;
+            dbg($log);
             $num_changed = $num_changed + 1;
             if (!$dry_run) {
+                Audit::log('exportkeys', $log);
                 unlink($abs_filename);
             }
         }
@@ -134,11 +140,13 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
                 $reason = 'CHANGED';
             else
                 continue;
-            dbg(' '.$reason.' '.$filename);
+            $log = ' '.$reason.' '.$filename;
+            dbg($log);
             $num_changed = $num_changed + 1;
             if (!$dry_run) {
                 $f = fopen($abs_filename, "w");
                 if ($f) {
+                    Audit::log('exportkeys', $log);
                     fwrite($f, $key->hash);
                     fclose($f);
                 }
