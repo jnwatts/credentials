@@ -113,10 +113,10 @@ class Users extends Controller
                 $data['title'] = 'User overview';
                 $data['current_user'] = $current_user;
                 $data['users'] = $this->users->getAll();
-                $data['footer-logic'] = 'credentials/index-footer';
+                $data['footer-logic'] = 'credentials/users-footer';
 
                 View::renderTemplate('header', $data);
-                View::render('credentials/index', $data);
+                View::render('credentials/users', $data);
                 View::renderTemplate('footer', $data);
             } else {
                 // User is not admin, redirect to their page
