@@ -15,19 +15,28 @@ class Keys extends Model
 
     function getAllByUser($user)
     {
-        return $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `user_id`='.$user->id.' ORDER BY `host`');
+        $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `user_id`='.$user->id.' ORDER BY `host`');
+        foreach ($result as $i => $k) {
+            $result[$i] = new \Models\Key($k);
+        }
+        return $result;
     }
 
     function getById($id)
     {
-        return $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `id`='.$id)[0];
+        $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `id`='.$id);
+        if (count($result) >= 1) {
+            $result = new \Models\Key($result[0]);
+        } else {
+            $result = NULL;
+        }
     }
 
     function getByUserHost($user, $host)
     {
         $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `host` LIKE \''.$host.'\' AND `user_id`='.$user->id);
         if (count($result) >= 1) {
-            $result = $result[0];
+            $result = new \Models\Keys($result[0]);
         } else {
             $result = NULL;
         }
