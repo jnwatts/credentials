@@ -10,5 +10,10 @@ class Key
             $this->$key = $value;
         }
     }
+
+    function __toString()
+    {
+        return $this->host . '(' . $this->id . ')';
+    }
 }
 
