@@ -10,9 +10,16 @@
 /** Create alias for Router. */
 use Core\Router;
 use Helpers\Hooks;
+use Helpers\User;
+
 
 /** Define routes. */
-Router::any('', 'Controllers\Users@index');
+if (User::current()->isAdmin()) {
+    Router::any('', 'Controllers\Index@index');
+} else {
+    Router::any('', 'Controllers\Users@index');
+}
+
 Router::post('users', 'Controllers\Users@create');
 Router::get('users', 'Controllers\Users@index');
 Router::post('users/(:num)', 'Controllers\Users@update');
