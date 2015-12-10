@@ -8,10 +8,6 @@ use Core\Language;
 $user = $data['current_user'];
 
 ?>
-<ol class="breadcrumb">
-    <li><a href="<?=DIR?>">Credentials</a></li>
-    <li class="active">Audit</li>
-</ol>
 <div class="dropdown">
   <button class="btn btn-default dropdown-toggle" type="button" id="select-span" data-toggle="dropdown" aria-haspopup="true">
     Select timespan

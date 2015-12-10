@@ -45,3 +45,15 @@ $hooks->run('afterBody');
 <h1>Credentials</h1>
 </div>
 
+<?if (isset($data['breadcrumbs'])) {?>
+    <ol class="breadcrumb">
+        <?foreach ($data['breadcrumbs'] as $crumb) {?>
+            <?if ($crumb->active) {?>
+                <li class="active"><?=$crumb->name?></li>
+            <?} else {?>
+                <li><a href="<?=$crumb->href?>"><?=$crumb->name?></a></li>
+            <?}?>
+
+        <?}?>
+    </ol>
+<?}?>

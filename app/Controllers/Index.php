@@ -9,6 +9,7 @@ use Helpers\Hooks;
 use Helpers\Audit;
 use Helpers\Request;
 use Helpers\User;
+use Helpers\Breadcrumbs;
 
 class Index extends Controller
 {
@@ -19,6 +20,9 @@ class Index extends Controller
 
     public function index()
     {
+        Breadcrumbs::add('', 'Credentials');
+        $data['breadcrumbs'] = Breadcrumbs::get();
+
         // User is admin, show index of users
         $data['title'] = 'Credentials';
         $data['current_user'] = $current_user;

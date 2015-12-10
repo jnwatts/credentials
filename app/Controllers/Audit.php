@@ -8,6 +8,7 @@ use Core\Error;
 use Helpers\Hooks;
 use Helpers\Request;
 use Helpers\User;
+use Helpers\Breadcrumbs;
 
 class Audit extends Controller
 {
@@ -40,6 +41,9 @@ class Audit extends Controller
             $until = intval($until);
         }
 
+        Breadcrumbs::add(DIR, 'Credentials');
+        Breadcrumbs::add('', 'Audit');
+        $data['breadcrumbs'] = Breadcrumbs::get();
         $data['title'] = 'Audit';
         $data['current_user'] = $current_user;
         $data['footer-logic'] = 'credentials/audit-footer';

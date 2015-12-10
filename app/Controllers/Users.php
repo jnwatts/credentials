@@ -9,6 +9,7 @@ use Helpers\Hooks;
 use Helpers\Audit;
 use Helpers\Request;
 use Helpers\User;
+use Helpers\Breadcrumbs;
 
 class Users extends Controller
 {
@@ -107,9 +108,12 @@ class Users extends Controller
     public function index($id = NULL)
     {
         $current_user = User::current();
+        Breadcrumbs::add(DIR, 'Credentials');
         if ($id == NULL) {
             if ($current_user->isAdmin()) {
                 // User is admin, show index of users
+                Breadcrumbs::add('', 'Users');
+                $data['breadcrumbs'] = Breadcrumbs::get();
                 $data['title'] = 'User overview';
                 $data['current_user'] = $current_user;
                 $data['users'] = $this->users->getAll();
@@ -137,6 +141,9 @@ class Users extends Controller
                 return;
             }
 
+            Breadcrumbs::add(DIR.'users', 'Users');
+            Breadcrumbs::add('', $user->login);
+            $data['breadcrumbs'] = Breadcrumbs::get();
             $data['title'] = 'User ' . $user->login;
             $data['current_user'] = $current_user;
             $data['user'] = $user;

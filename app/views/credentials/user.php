@@ -8,12 +8,6 @@ use Core\Language;
 $current_user = $data['current_user'];
 $user = $data['user'];
 ?>
-<ol class="breadcrumb">
-    <li><a href="<?=DIR?>">Credentials</a></li>
-    <li><a href="<?=DIR?>users">Users</a></li>
-    <li class="active"><?=$user->login?></li>
-</ol>
-
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#user-info">
         <h3 class="panel-title">
