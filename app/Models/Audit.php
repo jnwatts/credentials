@@ -25,11 +25,24 @@ class Audit extends Model
                     '_extra' => $extra));
     }
 
-    function get($since = 0)
+    function get($since = 0, $until = 0)
     {
         $sql = 'SELECT * FROM '.$this->auditTable;
+        $where = array();
         if ($since != 0)
-            $sql .= ' WHERE _when > ' . strval(time() - $since);
-        return $this->db->select($sql);
+            $where[] = '_when >= ' . strval($since);
+        if ($until != 0)
+            $where[] = '_when <= ' . strval($until);
+        if (count($where) > 0)
+            $sql .= ' WHERE '.implode(' AND ', $where);
+        $results = $this->db->select($sql);
+        if (count($results) >= 1) {
+            foreach ($results as $k => $v) {
+                $results[$k] = new \Models\AuditLogEntry($v);
+            }
+        } else {
+            $results = array();
+        }
+        return $results;
     }
 }

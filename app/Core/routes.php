@@ -24,6 +24,10 @@ Router::post('keys/(:num)', 'Controllers\Keys@update');
 Router::get('keys/(:num)', 'Controllers\Keys@index');
 Router::delete('keys/(:num)', 'Controllers\Keys@delete');
 
+Router::get('audit', 'Controllers\Audit@index');
+Router::get('audit/(:num)', 'Controllers\Audit@index');
+Router::get('audit/(:num)-(:num)', 'Controllers\Audit@index');
+
 
 /** Module routes. */
 $hooks = Hooks::get();
