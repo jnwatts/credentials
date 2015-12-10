@@ -36,7 +36,7 @@ class Keys extends Model
 
     function deleteById($id)
     {
-        $result = $this->db->delete($this->keysTable, array('id'=>$id));
+        $this->db->delete($this->keysTable, array('id'=>$id));
     }
 
     function create($user, $host, $hash)
