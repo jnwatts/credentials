@@ -2,6 +2,7 @@
 namespace Models;
 
 use Core\Model;
+use PDO;
 
 class Audit extends Model
 {
@@ -25,24 +26,17 @@ class Audit extends Model
                     '_extra' => $extra));
     }
 
-    function get($since = 0, $until = 0)
+    function get($since = 0, $until = NULL)
     {
-        $sql = 'SELECT * FROM '.$this->auditTable;
-        $where = array();
-        if ($since != 0)
-            $where[] = '_when >= ' . strval($since);
-        if ($until != 0)
-            $where[] = '_when <= ' . strval($until);
-        if (count($where) > 0)
-            $sql .= ' WHERE '.implode(' AND ', $where);
-        $results = $this->db->select($sql);
-        if (count($results) >= 1) {
-            foreach ($results as $k => $v) {
-                $results[$k] = new \Models\AuditLogEntry($v);
-            }
-        } else {
-            $results = array();
+        if ($until == NULL) {
+            $until = time();
         }
+        $results = $this->db->select(
+                'SELECT * FROM '.$this->auditTable.' WHERE _when >= :since AND _when <= :until',
+                array(':since' => intval($since), ':until' => intval($until)),
+                PDO::FETCH_CLASS,
+                'Models\AuditLogEntry'
+                );
         return $results;
     }
 }
