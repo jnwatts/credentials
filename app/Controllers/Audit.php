@@ -21,7 +21,16 @@ class Audit extends Controller
         $this->keys = new \Models\Keys();
     }
 
-    public function index($since = NULL, $until = 0)
+    private function validate_date($date)
+    {
+        if (preg_match('/[0-9]{2,4}-[0-9]{1,2}-[0-9]{1,2}/', $date)) {
+            return strtotime($date);
+        } else {
+            return false;
+        }
+    }
+
+    public function index()
     {
         $current_user = User::current();
         if (!$current_user->isAdmin()) {
@@ -30,15 +39,31 @@ class Audit extends Controller
             return;
         }
 
+        $since = $_GET['start'];
+        $until = $_GET['end'];
+
         if ($since == NULL) {
-            $since = strtotime("-1 days");
+            $since = strtotime("midnight");
         } else {
-            $since = intval($since);
+            $since = $this->validate_date($since);
+            if (!$since) {
+                http_response_code(409);
+                echo 'Invalid start date';
+                return;
+            }
+            $since = strtotime("midnight", $since);
         }
+
         if ($until == NULL) {
-            $until = strtotime("now");
+            $until = strtotime("tomorrow");
         } else {
-            $until = intval($until);
+            $until = $this->validate_date($until);
+            if (!$until) {
+                http_response_code(409);
+                echo 'Invalid end date';
+                return;
+            }
+            $until = strtotime("midnight", $until);
         }
 
         Breadcrumbs::add(DIR, 'Credentials');
