@@ -3,6 +3,7 @@ namespace Models;
 
 use Core\Model;
 use Helpers\Audit;
+use PDO;
 
 class Users extends Model
 {
@@ -16,7 +17,7 @@ class Users extends Model
         $this->keysTable = '`'.PREFIX.'keys`';
     }
 
-    private function select($where = "")
+    private function select($where = "", $array = array())
     {
         $sql = 'SELECT
             u.id AS id,
@@ -31,25 +32,22 @@ class Users extends Model
             $sql .= ' WHERE ' . $where;
         }
         $sql .= ' GROUP BY u.id ORDER BY u.login';
-        return $this->db->select($sql);
+        return $this->db->select(
+                $sql,
+                $array,
+                PDO::FETCH_CLASS,
+                'Models\User'
+                );
     }
 
     function getAll()
     {
-        $result = $this->select();
-        foreach ($result as $i => $u) {
-            $result[$i] = new \Models\User($u);
-        }
-        return $result;
+        return $this->select();
     }
 
     function getAllAdmins()
     {
-        $result = $this->select('u.admin = 1');
-        foreach ($result as $i => $u) {
-            $result[$i] = new \Models\User($u);
-        }
-        return $result;
+        return $this->select('u.admin = :admin', array(':admin' => 1));
     }
 
     function getAllLogins()
@@ -64,22 +62,22 @@ class Users extends Model
 
     function getByLogin($login)
     {
-        $result = $this->select('login='.$this->db->quote($login));
-        if (count($result) >= 1) {
-            $result = new \Models\User($result[0]);
-        } else {
+        $result = $this->select('u.login = :login', array(':login' => $login));
+        if (count($result) <= 0) {
             $result = NULL;
+        } else {
+            $result = $result[0];
         }
         return $result;
     }
 
     function getById($id)
     {
-        $result = $this->db->select('SELECT * FROM '.$this->usersTable.' WHERE id='.$this->db->quote($id, \PDO::PARAM_INT));
-        if (count($result) >= 1) {
-            $result = new \Models\User($result[0]);
-        } else {
+        $result = $this->select('u.id = :id', array(':id' => $id));
+        if (count($result) <= 0) {
             $result = NULL;
+        } else {
+            $result = $result[0];
         }
         return $result;
     }

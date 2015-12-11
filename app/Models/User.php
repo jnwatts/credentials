@@ -3,11 +3,13 @@ namespace Models;
 
 class User
 {
-    function __construct($user)
+    function __construct($user = NULL)
     {
-        $vars = get_object_vars($user);
-        foreach ($vars as $key => $value) {
-            $this->$key = $value;
+        if ($user != NULL) {
+            $vars = get_object_vars($user);
+            foreach ($vars as $key => $value) {
+                $this->$key = $value;
+            }
         }
     }
 

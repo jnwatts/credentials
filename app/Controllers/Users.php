@@ -108,10 +108,10 @@ class Users extends Controller
     public function index($id = NULL)
     {
         $current_user = User::current();
-        Breadcrumbs::add(DIR, 'Credentials');
         if ($id == NULL) {
             if ($current_user->isAdmin()) {
                 // User is admin, show index of users
+                Breadcrumbs::add(DIR, 'Credentials');
                 Breadcrumbs::add('', 'Users');
                 $data['breadcrumbs'] = Breadcrumbs::get();
                 $data['title'] = 'User overview';
@@ -141,6 +141,7 @@ class Users extends Controller
                 return;
             }
 
+            Breadcrumbs::add(DIR, 'Credentials');
             Breadcrumbs::add(DIR.'users', 'Users');
             Breadcrumbs::add('', $user->login);
             $data['breadcrumbs'] = Breadcrumbs::get();
