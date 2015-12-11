@@ -3,12 +3,8 @@ namespace Models;
 
 class Key
 {
-    function __construct($db_result)
+    function __construct()
     {
-        $vars = get_object_vars($db_result);
-        foreach ($vars as $key => $value) {
-            $this->$key = $value;
-        }
     }
 
     function __toString()

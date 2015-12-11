@@ -2,6 +2,7 @@
 namespace Models;
 
 use Core\Model;
+use PDO;
 
 class Keys extends Model
 {
@@ -15,30 +16,43 @@ class Keys extends Model
 
     function getAllByUser($user)
     {
-        $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `user_id`='.$user->id.' ORDER BY `host`');
-        foreach ($result as $i => $k) {
-            $result[$i] = new \Models\Key($k);
-        }
+        $result = $this->db->select(
+                'SELECT * FROM '.$this->keysTable.' WHERE `user_id` = :user_id ORDER BY `host`',
+                array(':user_id' => $user->id),
+                PDO::FETCH_CLASS,
+                'Models\Key'
+                );
         return $result;
     }
 
     function getById($id)
     {
-        $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `id`='.$id);
-        if (count($result) >= 1) {
-            $result = new \Models\Key($result[0]);
-        } else {
+        $result = $this->db->select(
+                'SELECT * FROM '.$this->keysTable.' WHERE `id` = :id',
+                array(':id' => $id),
+                PDO::FETCH_CLASS,
+                'Models\Key'
+                );
+        if (count($result) <= 0) {
             $result = NULL;
+        } else {
+            $result = $result[0];
         }
+        return $result;
     }
 
     function getByUserHost($user, $host)
     {
-        $result = $this->db->select('SELECT * FROM '.$this->keysTable.' WHERE `host` LIKE \''.$host.'\' AND `user_id`='.$user->id);
-        if (count($result) >= 1) {
-            $result = new \Models\Keys($result[0]);
-        } else {
+        $result = $this->db->select(
+                'SELECT * FROM '.$this->keysTable.' WHERE `host` LIKE :host AND `user_id` = :user_id',
+                array(':host' => $host, ':user_id' => $user->id),
+                PDO::FETCH_CLASS,
+                'Models\Key'
+                );
+        if (count($result) <= 0) {
             $result = NULL;
+        } else {
+            $result = $result[0];
         }
         return $result;
     }
@@ -57,7 +71,12 @@ class Keys extends Model
     function getHostsByUser($user)
     {
         $hosts = array();
-        $result = $this->db->select('SELECT `host` FROM '.$this->keysTable.' WHERE `user_id`='.$user->id);
+        $result = $this->db->select(
+                'SELECT `host` FROM '.$this->keysTable.' WHERE `user_id` = :user_id',
+                array(':user_id' => $user->id),
+                PDO::FETCH_CLASS,
+                'Models\Key'
+                );
         if (count($result) > 0) {
             foreach ($result as $row) {
                 $hosts[] = $row->host;
