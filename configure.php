@@ -59,6 +59,7 @@ function usage() {
     dbg('Usage: ' . $argv[0] . ' <action> [<args...>]');
     dbg(' get [<name>]          Get config <name> (or all if <name> empty)');
     dbg(' set <name> <value>    Set config <name> to <value>');
+    dbg(' create <login>        Create user <login>');
 	dbg(' import <json>			Import config from json string');
     dbg(' admin [<login>]       Make <login> an admin (or list admins if <login> empty)');
     dbg(' user [<login>]        Show user <login> (or list all if <login> empty)');
@@ -116,6 +117,13 @@ if ($action == "set") {
     }
     $config->set($var, $val);
     Audit::log('console', 'set config', array('name' => $var, 'value' => $val));
+} else if ($action == "create") {
+    $user = $users->create(array('login' => $var));
+    if ($user == NULL) {
+        dbg("Failed to create user");
+    } else {
+        Audit::log('console', 'create user', array('login' => $var));
+    }
 } else if ($action == "import") {
 	if ($var == NULL) {
 		dbg("Missing data");
