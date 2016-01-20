@@ -67,28 +67,33 @@ class User
             return NULL;
         }
 
-        $user = $this->createFromLdap($login);
-        if ($user == NULL) {
-            if ($this->current_user != NULL && $this->current_user->isAdmin()) {
-                if ($details == NULL) {
-                    $details = array('login' => $login);
-                }
-                $user = $this->users->create($details);
-                if ($user == NULL) {
-                    http_response_code(500);
-                    echo "Failed to create user";
-                    die();
-                } else {
-                    Audit::log($this->current_user, 'created user '.$user, $user);
-                }
-            } else {
-                http_response_code(403);
-                echo "Access denied";
-                die();
+        if ($user == NULL && $this->useLdap()) {
+            $user = $this->createFromLdap($login);
+            if ($user != NULL) {
+                Audit::log($this->current_user ? $this->current_user : $user, 'imported user '.$user, $user);
             }
-        } else {
-            Audit::log($this->current_user ? $this->current_user : $user, 'imported user '.$user, $user);
         }
+
+        if ($user == NULL && $this->current_user != NULL && $this->current_user->isAdmin()) {
+            if ($details == NULL) {
+                $details = array('login' => $login);
+            }
+            $user = $this->users->create($details);
+            if ($user == NULL) {
+                http_response_code(500);
+                echo "Failed to create user";
+                die();
+            } else {
+                Audit::log($this->current_user, 'created user '.$user, $user);
+            }
+        }
+
+        if ($user == NULL) {
+            http_response_code(403);
+            echo "Access denied";
+            die();
+        }
+
         return $user;
     }
 
