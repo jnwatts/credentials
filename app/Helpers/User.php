@@ -92,6 +92,13 @@ class User
         return $user;
     }
 
+    private function useLdap()
+    {
+        $config = $this->config;
+        $ldap_url = $config->get('ldap_url');
+        return ($ldap_url != "");
+    }
+
     private function getUserInfoFromLdap($login)
     {
         $config = $this->config;
