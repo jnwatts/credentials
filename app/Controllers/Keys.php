@@ -55,6 +55,12 @@ class Keys extends Controller
             return;
         }
 
+        if (preg_match('/BEGIN.*PRIVATE/i', $data->hash) || preg_match('/PRIVATE.*KEY/i', $data->hash)) {
+            http_response_code(409);
+            echo 'Refusing to continue with what looks like a private key';
+            return;
+        }
+
         $current_user = User::current();
         $user = User::instance()->findId($data->user_id);
         if ($current_user->isAdmin()) {
@@ -108,6 +114,9 @@ class Keys extends Controller
             } else if (!preg_match('/\S/', $data->hash)) {
                 $result['status'] = 409;
                 $result['message'] = 'Hash is empty';
+            } else if (!preg_match('/BEGIN.*PRIVATE/i', $data->hash)) {
+                $result['status'] = 409;
+                $result['message'] = 'Looks like private key';
             } else {
                 $user = User::instance()->get($data->user);
                 $result['user_id'] = $user->id;
