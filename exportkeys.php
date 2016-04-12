@@ -198,12 +198,6 @@ if (DEBUG) {
 }
 
 $num_changed = update_keys($users, $keys, $export_path);
-if ($num_changed <= 0) {
-    dbg('No changes necessary');
-    exit(0);
-} else {
-    dbg('Invoking ' . $export_cmd . '...');
-    system($export_cmd);
-}
-
+dbg('Invoking ' . $export_cmd . '...');
+system($export_cmd);
 dbg('Done.');
