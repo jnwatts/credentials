@@ -106,8 +106,13 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
             dbg($log);
             $num_changed = $num_changed + 1;
             if (!$dry_run) {
-                Audit::log('exportkeys', $log);
-                unlink($abs_filename);
+                if (file_exists($abs_filename)) {
+                    Audit::log('exportkeys', $log);
+                    unlink($abs_filename);
+                } else {
+                    $log .= ' (File doesn\'t exist!)';
+                    Audit::log('exportkeys', $log);
+                }
             }
         }
     }
@@ -124,8 +129,13 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
             dbg($log);
             $num_changed = $num_changed + 1;
             if (!$dry_run) {
-                Audit::log('exportkeys', $log);
-                unlink($abs_filename);
+                if (file_exists($abs_filename)) {
+                    Audit::log('exportkeys', $log);
+                    unlink($abs_filename);
+                } else {
+                    $log .= ' (File doesn\'t exist!)';
+                    Audit::log('exportkeys', $log);
+                }
             }
         }
 
@@ -149,6 +159,9 @@ function update_keys($users, $keys, $export_path, $dry_run = false) {
                     Audit::log('exportkeys', $log);
                     fwrite($f, $key->hash);
                     fclose($f);
+                } else {
+                    $log .= " (Failed to open!)";
+                    Audit::log('exportkeys', $log);
                 }
             }
         }
