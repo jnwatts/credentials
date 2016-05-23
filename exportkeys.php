@@ -60,7 +60,7 @@ function get_user_from_filename($filename) {
 
 function get_host_from_filename($filename) {
     $matches = array();
-    preg_match('/@([^.]+).pub$/', $filename, $matches);
+    preg_match('/@(.+).pub$/', $filename, $matches);
     return $matches[1];
 }
 
