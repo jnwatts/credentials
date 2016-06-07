@@ -49,20 +49,9 @@ class Keys extends Controller
             return;
         }
 
-        if (!preg_match('/\S/', $data->host) || !preg_match('/\S/', $data->hash)) {
-            http_response_code(409);
-            echo 'Host or hash is empty';
-            return;
-        }
-
-        if (preg_match('/BEGIN.*PRIVATE/i', $data->hash) || preg_match('/PRIVATE.*KEY/i', $data->hash)) {
-            http_response_code(409);
-            echo 'Refusing to continue with what looks like a private key';
-            return;
-        }
-
         $current_user = User::current();
         $user = User::instance()->findId($data->user_id);
+
         if ($current_user->isAdmin()) {
             if ($user == NULL) {
                 http_response_code(409);
@@ -75,6 +64,14 @@ class Keys extends Controller
                 echo 'User ID does not match current user';
                 return;
             }
+        }
+
+        $data->user = $user->login;
+        $result = [];
+        if (!$this->validate_key($data, $result)) {
+            http_response_code($result['status']);
+            echo $result['message'];
+            return;
         }
 
         $existing_key = $this->keys->getByUserHost($user, $data->host);
@@ -105,19 +102,7 @@ class Keys extends Controller
                 'host' => $data->host
             );
 
-            if (!preg_match('/\S/', $data->user)) {
-                $result['status'] = 409;
-                $result['message'] = 'User is empty';
-            } else if (!preg_match('/\S/', $data->host)) {
-                $result['status'] = 409;
-                $result['message'] = 'Host is empty';
-            } else if (!preg_match('/\S/', $data->hash)) {
-                $result['status'] = 409;
-                $result['message'] = 'Hash is empty';
-            } else if (!preg_match('/BEGIN.*PRIVATE/i', $data->hash)) {
-                $result['status'] = 409;
-                $result['message'] = 'Looks like private key';
-            } else {
+            if ($this->validate_key($data, $result)) {
                 $user = User::instance()->get($data->user);
                 $result['user_id'] = $user->id;
 
@@ -145,5 +130,26 @@ class Keys extends Controller
         http_response_code(404);
         echo 'Not implemented';
         return;
+    }
+
+    protected function validate_key($data, &$result)
+    {
+        $result['status'] = 200;
+        $result['message'] = 'Ok';
+        if (!preg_match('/\S/', $data->user)) {
+            $result['status'] = 409;
+            $result['message'] = 'User is empty';
+        } else if (!preg_match('/\S/', $data->host)) {
+            $result['status'] = 409;
+            $result['message'] = 'Host is empty';
+        } else if (!preg_match('/\S/', $data->hash)) {
+            $result['status'] = 409;
+            $result['message'] = 'Hash is empty';
+        } else if (preg_match('/(BEGIN)?.*PRIVATE.*(KEY)?/i', $data->hash)) {
+            $result['status'] = 409;
+            $result['message'] = 'Looks like private key';
+        }
+
+        return $result['status'] == 200;
     }
 }
