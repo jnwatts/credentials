@@ -74,6 +74,8 @@ class Keys extends Controller
             return;
         }
 
+        $this->sanitize_key($data);
+
         $existing_key = $this->keys->getByUserHost($user, $data->host);
         if ($existing_key != NULL) {
             http_response_code(409);
@@ -151,5 +153,11 @@ class Keys extends Controller
         }
 
         return $result['status'] == 200;
+    }
+
+    protected function sanitize_key(&$data)
+    {
+        $data->host = preg_replace('/^(.*@)?(.*?)(\.pub)?$/', '$2', $data->host);
+        $data->host = preg_replace('/[^a-zA-Z0-9_-]/', '_', $data->host);
     }
 }
