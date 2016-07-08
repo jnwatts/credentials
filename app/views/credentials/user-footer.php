@@ -54,7 +54,7 @@ $('.delete-key').click(function() {
     });
 });
 
-$('#add-key > button[type=submit]').click(function() {
+$('#add-key > button[type=submit]').click(function(event) {
     event.preventDefault();
     var sshkey = $('#add-key > input-sshkey');
     $.ajax({
