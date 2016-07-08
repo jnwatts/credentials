@@ -2,8 +2,6 @@
 use Helpers\Url;
 ?>
 
-<link rel="import" href="<?=Url::templatePath()?>input-sshkey.html">
-
 <script>
 $('#toggle-admin').click(function() {
     var url = '<?=DIR?>users/<?=$data['user']->id?>';
@@ -56,14 +54,15 @@ $('.delete-key').click(function() {
 
 $('#add-key > button[type=submit]').click(function(event) {
     event.preventDefault();
-    var sshkey = $('#add-key > input-sshkey');
+    var host = $('#add-key > input[name="host"]').val();
+    var hash = $('#add-key > textarea[name="hash"]').val();
     $.ajax({
         type: 'post',
         url: '<?=DIR?>keys',
         data: JSON.stringify({
             user_id: <?=$data['user']->id?>,
-            host: sshkey.attr('host'),
-            hash: sshkey.attr('hash')
+            host: host,
+            hash: hash
         }),
         contentType: "application/json; charset=utf-8",
     }).done(function(data) {
@@ -77,7 +76,6 @@ $('#add-key > button[type=submit]').click(function(event) {
 
 $('#add-key > .cancel').click(function() {
     $('#add-key').trigger('reset');
-    $('#add-key > input-sshkey').trigger('reset');
 });
 
 $('#add-key > .from-file').click(function () {
@@ -90,15 +88,17 @@ $('input[type=file]').change(function () {
         var reader = new FileReader();
         reader.onload = (function(f) {
             return function(e) {
-                var sshkey = $('#add-key > input-sshkey');
                 var filename = f.name;
                 var parts = filename.match(/\S+@(\S+).pub/);
+                var host;
+                var hash = e.target.result;
                 if (parts) {
-                    sshkey.attr("host", parts[1]);
+                    host = parts[1];
                 } else {
-                    sshkey.attr("host", filename);
+                    host = filename;
                 }
-                sshkey.attr("hash", e.target.result);
+                $('#add-key > input[name="host"]').val(host);
+                $('#add-key > textarea[name="hash"]').val(hash);
             };
         })(f);
         reader.readAsText(f);

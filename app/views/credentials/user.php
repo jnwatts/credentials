@@ -8,6 +8,12 @@ use Core\Language;
 $current_user = $data['current_user'];
 $user = $data['user'];
 ?>
+<style>
+#add-key > textarea[name="hash"] {
+    width: 400px;
+    height: 150px;
+}
+</style>
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#user-info">
         <h3 class="panel-title">
@@ -34,7 +40,11 @@ $user = $data['user'];
     </div>
     <div class="panel-body collapse" id="add-key-panel">
         <form id="add-key">
-            <input-sshkey host="" hash=""></input-sshkey><br />
+            <label for="host">Hostname:</label><br>
+            <input type="text" name="host" value=""><br>
+            <label for="hash">Key:</label><br>
+            <textarea name="hash"></textarea><br>
+
             <input type="file" name="" style="display: none">
             <button class="btn btn-primary" type="submit">
                 Add
