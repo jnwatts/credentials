@@ -134,14 +134,14 @@ class User
             return NULL;
         }
 
-        $results = ldap_search($h, $base_dn, '(samaccountname='.$login.')', array('memberof', 'mail', 'displayname'));
+        $results = ldap_search($h, $base_dn, '(samaccountname='.$login.')', array('samaccountname', 'memberof', 'mail', 'displayname'));
         $entries = ldap_get_entries($h, $results);
 
         if ($entries['count'] == 0) {
             return NULL; //die('No entries');
         }
 
-        $result['login'] = $login;
+        $result['login'] = $entries[0]['samaccountname'][0];
         $result['fullname'] = $entries[0]['displayname'][0];
         $result['email'] = $entries[0]['mail'][0];
         $result['admin'] = (in_array($admin_dn, $entries[0]['memberof']) ? 1 : 0);
