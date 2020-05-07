@@ -1,3 +1,5 @@
 app/Core/Config.php
+vendor/
+.composer/
 .DS_Store
 .*.swp
