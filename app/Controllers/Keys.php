@@ -9,6 +9,8 @@ use Helpers\Request;
 use Helpers\Audit;
 use Helpers\User;
 
+use \phpseclib\Crypt\RSA;
+
 class Keys extends Controller
 {
 
@@ -67,14 +69,15 @@ class Keys extends Controller
         }
 
         $data->user = $user->login;
+
+        $this->sanitize_key($data);
+
         $result = [];
         if (!$this->validate_key($data, $result)) {
             http_response_code($result['status']);
             echo $result['message'];
             return;
         }
-
-        $this->sanitize_key($data);
 
         $existing_key = $this->keys->getByUserHost($user, $data->host);
         if ($existing_key != NULL) {
@@ -150,6 +153,12 @@ class Keys extends Controller
         } else if (preg_match('/(BEGIN)?.*PRIVATE.*(KEY)?/i', $data->hash)) {
             $result['status'] = 409;
             $result['message'] = 'Looks like private key';
+        } else {
+            $rsa = new \phpseclib\Crypt\RSA();
+            if (!$rsa->loadKey($data->hash)) {
+                $result['status'] = 409;
+                $result['message'] = 'Unable to parse key';
+            }
         }
 
         return $result['status'] == 200;
@@ -159,5 +168,8 @@ class Keys extends Controller
     {
         $data->host = preg_replace('/^(.*@)?(.*?)(\.pub)?$/', '$2', $data->host);
         $data->host = preg_replace('/[^a-zA-Z0-9_-]/', '_', $data->host);
+        if (preg_match('/.*BEGIN.*\n/', $data->hash)) {
+            $data->hash = shell_exec('bash -c \'ssh-keygen -i -f /dev/stdin <<<"'.$data->hash.'"\'');
+        }
     }
 }
